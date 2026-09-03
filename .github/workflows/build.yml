@@ -41,9 +41,15 @@ jobs:
         run: python scripts/build.py --check-reporter "$PR_AUTHOR" --diff-base "$DIFF_BASE"
       - name: Run tests
         run: python -m unittest discover -s tests -v
-      - name: Verify generated blocklist PR
+      - name: Verify generated blocklist changes
         if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.validate_only == true)
-        run: git diff --exit-code -- blocklist
+        env:
+          DIFF_BASE: origin/${{ github.base_ref }}...HEAD
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ -z "$(git diff --name-only "$DIFF_BASE" -- blocklist)" ]; then
+            exit 0
+          fi
+          git diff --exit-code -- blocklist
 
   publish:
     if: github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.validate_only != true)

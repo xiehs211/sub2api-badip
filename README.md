@@ -16,13 +16,15 @@
 
 ### 1. 准备分支
 
-Fork 本仓库后执行：
+`main` 受保护，不能直接推送。维护者可以直接在本仓库创建分支；其他贡献者先 Fork，再克隆自己的 Fork：
 
 ```bash
 git clone https://github.com/YOUR_GITHUB_LOGIN/sub2api-badip.git
 cd sub2api-badip
 git switch -c report/manual-ip
 ```
+
+维护者使用本仓库地址即可，不需要 Fork；将 `YOUR_GITHUB_LOGIN` 替换为自己的 GitHub 用户名。
 
 ### 2. 人工确认日志
 
@@ -66,10 +68,13 @@ python scripts/submit.py --dry-run \
 
 ### 4. 检查并提交 PR
 
+手动投票 PR 只提交 `votes/YYYY-MM.csv`。`blocklist/` 是生成文件，不要手工编辑；合并投票 PR 后，GitHub Actions 会在 `automation/blocklist` 分支创建或更新生成文件 PR。
+
 ```bash
 git diff -- votes/2026-09.csv
 python scripts/build.py
 python -m unittest discover -s tests -v
+git diff --check
 git add votes/2026-09.csv
 git commit -m "report: add manually verified brute-force IP"
 git push --set-upstream origin report/manual-ip
@@ -79,11 +84,12 @@ git push --set-upstream origin report/manual-ip
 
 ```bash
 gh pr create \
+  --base main \
   --title "report: add manually verified brute-force IP" \
   --body "IP manually verified from local web logs; no raw logs uploaded."
 ```
 
-PR 必须通过 Actions：作者必须与 CSV 中的 `reporter` 一致，历史行不能编辑或删除，IP 必须通过公网地址和白名单校验。
+如果 `python scripts/build.py` 在本地生成了新的 `blocklist/` 差异，不要把它们手工加入本次投票 PR；合并后由 Actions 自动提交。PR 必须通过 `validate`：作者必须与 CSV 中的 `reporter` 一致，历史行不能编辑或删除，IP 必须通过公网地址和白名单校验。
 
 ## 判定规则
 

@@ -1,0 +1,66 @@
+name: validate-and-build
+
+on:
+  pull_request:
+    paths:
+      - "votes/**"
+      - "whitelist.txt"
+      - "scripts/**"
+      - "tests/**"
+      - ".github/workflows/build.yml"
+  push:
+    branches: [main]
+  schedule:
+    - cron: "10 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: badip-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate votes and build outputs
+        if: github.event_name != 'pull_request'
+        run: python scripts/build.py
+      - name: Validate PR author and build outputs
+        if: github.event_name == 'pull_request'
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          DIFF_BASE: origin/${{ github.base_ref }}...HEAD
+        run: python scripts/build.py --check-reporter "$PR_AUTHOR" --diff-base "$DIFF_BASE"
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+  publish:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python scripts/build.py
+      - name: Commit changed derived files
+        run: |
+          if git diff --quiet -- blocklist; then
+            exit 0
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add blocklist
+          git commit -m "chore: rebuild blocklist [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

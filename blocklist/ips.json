@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "rules": {
+    "min_reporters": 2,
+    "min_net_votes": 3,
+    "ttl_days": 90,
+    "scan_ttl_days": 30
+  },
+  "entries": []
+}

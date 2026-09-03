@@ -2,17 +2,17 @@ name: validate-and-build
 
 on:
   pull_request:
-    paths:
-      - "votes/**"
-      - "whitelist.txt"
-      - "scripts/**"
-      - "tests/**"
-      - ".github/workflows/build.yml"
   push:
     branches: [main]
   schedule:
     - cron: "10 2 * * *"
   workflow_dispatch:
+    inputs:
+      validate_only:
+        description: "Only validate the generated blocklist PR"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: badip-build-${{ github.ref }}
@@ -41,21 +41,38 @@ jobs:
         run: python scripts/build.py --check-reporter "$PR_AUTHOR" --diff-base "$DIFF_BASE"
       - name: Run tests
         run: python -m unittest discover -s tests -v
+      - name: Verify generated blocklist changes
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.validate_only == true)
+        env:
+          DIFF_BASE: origin/${{ github.base_ref }}...HEAD
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ -z "$(git diff --name-only "$DIFF_BASE" -- blocklist)" ]; then
+            exit 0
+          fi
+          git diff --exit-code -- blocklist
 
   publish:
-    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.validate_only != true)
     needs: validate
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python scripts/build.py
-      - name: Commit changed derived files
+      - name: Prepare generated blocklist PR
+        env:
+          AUTOMATION_BRANCH: automation/blocklist
+          GH_TOKEN: ${{ github.token }}
         run: |
+          git fetch origin main
+          git fetch origin "$AUTOMATION_BRANCH" || true
+          git switch --force-create "$AUTOMATION_BRANCH" origin/main
+          python scripts/build.py
           if git diff --quiet -- blocklist; then
             exit 0
           fi
@@ -63,4 +80,12 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add blocklist
           git commit -m "chore: rebuild blocklist [skip ci]"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push --force-with-lease origin "$AUTOMATION_BRANCH"
+          if [ -z "$(gh pr list --base main --head "$AUTOMATION_BRANCH" --state open --json number --jq '.[0].number // empty')" ]; then
+            gh pr create \
+              --base main \
+              --head "$AUTOMATION_BRANCH" \
+              --title "chore: rebuild blocklist" \
+              --body "Automated rebuild of derived blocklist files from the current main branch."
+          fi
+          gh workflow run build.yml --ref "$AUTOMATION_BRANCH" -f validate_only=true

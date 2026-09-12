@@ -46,3 +46,4 @@ ip,reporter,vote,count,first_seen,last_seen,category,ua,evidence_hash
 216.230.233.49,SakuraPuare,+1,20,2026-07-21T22:57:08Z,2026-07-22T09:03:09Z,auth_login,python-requests/2.34.2,sha256:96386518ebedf64062ffac4293814b2caf4958c3e50ae618f0544d803497b4c8
 101.6.157.11,SakuraPuare,+1,2,2026-08-04T04:51:02Z,2026-08-04T04:51:11Z,auth_login,Chrome/unknown,sha256:6d6807170bd6d3ec68acbd428d41caac1412cecdc462258d245d15ad51b805d3
 47.92.239.70,SakuraPuare,+1,2,2026-08-10T14:48:54Z,2026-08-10T15:11:09Z,auth_login,Chrome/unknown,sha256:79612e96656cf179d0bf958c22dbadd1db18579c1d32cb1b2d8065dcca29c264
+36.134.70.109,xiehs211,+1,5,2026-09-12T14:19:53Z,2026-09-12T14:19:53Z,auth_login,unknown,sha256:0d719632e8a20b7a4a2babd4292d29e326f0b471ae6fd7037d0884bf2d66829d

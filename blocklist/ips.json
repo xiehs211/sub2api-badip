@@ -6,5 +6,101 @@
     "ttl_days": 90,
     "scan_ttl_days": 30
   },
-  "entries": []
+  "entries": [
+    {
+      "ip": "38.58.58.68",
+      "net_votes": 2,
+      "reporters": [
+        "SakuraPuare",
+        "xiehs211"
+      ],
+      "reporter_count": 2,
+      "attempts": 105,
+      "first_seen": "2026-07-27T20:09:50Z",
+      "last_seen": "2026-09-03T12:29:04Z",
+      "categories": [
+        "auth_login"
+      ],
+      "ua": [
+        "Chrome/135",
+        "unknown"
+      ]
+    },
+    {
+      "ip": "47.92.239.70",
+      "net_votes": 2,
+      "reporters": [
+        "SakuraPuare",
+        "xiehs211"
+      ],
+      "reporter_count": 2,
+      "attempts": 7,
+      "first_seen": "2026-08-10T14:48:54Z",
+      "last_seen": "2026-09-03T12:33:30Z",
+      "categories": [
+        "auth_login"
+      ],
+      "ua": [
+        "Chrome/unknown",
+        "unknown"
+      ]
+    },
+    {
+      "ip": "101.6.157.11",
+      "net_votes": 2,
+      "reporters": [
+        "SakuraPuare",
+        "xiehs211"
+      ],
+      "reporter_count": 2,
+      "attempts": 200,
+      "first_seen": "2026-08-04T04:51:02Z",
+      "last_seen": "2026-09-03T10:07:48Z",
+      "categories": [
+        "auth_login"
+      ],
+      "ua": [
+        "Chrome/unknown",
+        "unknown"
+      ]
+    },
+    {
+      "ip": "155.254.105.93",
+      "net_votes": 2,
+      "reporters": [
+        "SakuraPuare",
+        "xiehs211"
+      ],
+      "reporter_count": 2,
+      "attempts": 155,
+      "first_seen": "2026-08-06T12:27:53Z",
+      "last_seen": "2026-09-03T12:18:03Z",
+      "categories": [
+        "auth_login"
+      ],
+      "ua": [
+        "Go-http-client/2.0",
+        "unknown"
+      ]
+    },
+    {
+      "ip": "216.230.233.49",
+      "net_votes": 2,
+      "reporters": [
+        "SakuraPuare",
+        "xiehs211"
+      ],
+      "reporter_count": 2,
+      "attempts": 25,
+      "first_seen": "2026-07-21T22:57:08Z",
+      "last_seen": "2026-09-03T12:29:08Z",
+      "categories": [
+        "auth_login"
+      ],
+      "ua": [
+        "python-requests/2.34.2",
+        "unknown"
+      ]
+    }
+  ]
 }
